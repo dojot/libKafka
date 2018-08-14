@@ -11,8 +11,6 @@
 
 #include "lib_kafka.h"
 
-#define PORT 9092
-
 struct partition_t {
     int32_t partition;
     std::vector <int32_t> replicas;
@@ -184,7 +182,7 @@ CreateTopicResponse getCreateTopicResponse(char *buffer) {
     return response;
 };
 
-int KafkaSend(uint8_t *data, uint32_t dataSize, char *buffer) {    
+int KafkaSend(uint8_t *data, uint32_t dataSize, char *buffer, std::string kafka_ip, int PORT) {    
     int sock = 0;
     struct sockaddr_in serv_addr;
 
@@ -198,7 +196,7 @@ int KafkaSend(uint8_t *data, uint32_t dataSize, char *buffer) {
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
       
-    inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr);
+    inet_pton(AF_INET, kafka_ip.c_str(), &serv_addr.sin_addr);
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         return -1;
@@ -215,7 +213,7 @@ int KafkaSend(uint8_t *data, uint32_t dataSize, char *buffer) {
 
 }
 
-int lib_kafka::createTopic(std::string topic, int numPartition, int replicationFactor) {
+int lib_kafka::createTopic(std::string topic, int numPartition, int replicationFactor, std::string kafka_addr, int PORT) {
 
     char buffer[1024] = { 0 };
     CreateTopicMessage message;
@@ -243,7 +241,7 @@ int lib_kafka::createTopic(std::string topic, int numPartition, int replicationF
     ::marshall(cursor, offset, message.header);
 
     
-    if (KafkaSend(data, totalSize, buffer) > 0) {
+    if (KafkaSend(data, totalSize, buffer, kafka_addr, PORT) > 0) {
         CreateTopicResponse response;
         
         response = getCreateTopicResponse(buffer);
@@ -254,7 +252,7 @@ int lib_kafka::createTopic(std::string topic, int numPartition, int replicationF
     return -1;
 };
 
-int APIRequest() {
+int APIRequest(std::string kafka_addr, int PORT) {
 
     RequestMessage message;
 
@@ -270,7 +268,7 @@ int APIRequest() {
     ::marshall(cursor, offset, message);
 
     
-    if (KafkaSend(data, offset, buffer) == 0) {
+    if (KafkaSend(data, offset, buffer, kafka_addr, PORT) == 0) {
         return 0;
     }
 
@@ -286,8 +284,10 @@ Napi::Number lib_kafka::createTopicWrapper(const Napi::CallbackInfo& info)
   Napi::String topic = info[0].As<Napi::String>();
   Napi::Number partition = info[1].As<Napi::Number>();
   Napi::Number replica = info[2].As<Napi::Number>();
+  Napi::String ip = info[3].As<Napi::String>();
+  Napi::Number port = info[4].As<Napi::Number>();  
 
-  int returnValue = lib_kafka::createTopic(topic, partition.Int32Value(), replica.Int32Value());
+  int returnValue = lib_kafka::createTopic(topic, partition.Int32Value(), replica.Int32Value(), ip, port);
   
   return Napi::Number::New(env, returnValue);
 }
