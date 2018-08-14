@@ -1,5 +1,7 @@
 # Prerequisites
 *.d
+autom4te.cache/
+.deps
 
 # Compiled Object files
 *.slo
