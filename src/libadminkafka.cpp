@@ -9,7 +9,7 @@
 #include <iostream>
 #include <vector>
 
-#include "lib_kafka.h"
+#include "adminkafka.h"
 
 struct partition_t {
     int32_t partition;
@@ -213,7 +213,7 @@ int KafkaSend(uint8_t *data, uint32_t dataSize, char *buffer, std::string kafka_
 
 }
 
-int lib_kafka::createTopic(std::string topic, int numPartition, int replicationFactor, std::string kafka_addr, int PORT) {
+int kafka::createTopic(std::string topic, int numPartition, int replicationFactor, std::string kafka_addr, int PORT) {
 
     char buffer[1024] = { 0 };
     CreateTopicMessage message;
@@ -276,27 +276,3 @@ int APIRequest(std::string kafka_addr, int PORT) {
         
 }
 
-/*Wrapper*/
-Napi::Number lib_kafka::createTopicWrapper(const Napi::CallbackInfo& info) 
-{
-  Napi::Env env = info.Env();
-
-  Napi::String topic = info[0].As<Napi::String>();
-  Napi::Number partition = info[1].As<Napi::Number>();
-  Napi::Number replica = info[2].As<Napi::Number>();
-  Napi::String ip = info[3].As<Napi::String>();
-  Napi::Number port = info[4].As<Napi::Number>();  
-
-  int returnValue = lib_kafka::createTopic(topic, partition.Int32Value(), replica.Int32Value(), ip, port);
-  
-  return Napi::Number::New(env, returnValue);
-}
-
-Napi::Object lib_kafka::Init(Napi::Env env, Napi::Object exports) 
-{
-  exports.Set(
-"createTopic", Napi::Function::New(env, lib_kafka::createTopicWrapper)
-  );
- 
-  return exports;
-}

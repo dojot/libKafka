@@ -1,3 +1,4 @@
-bin_PROGRAMS = libadminkafka
+lib_LIBRARIES = libadminkafka.a
+libadminkafka_a_SOURCES = libadminkafka.cpp
 
-libadminkafka_SOURCES = main.cpp
+include_HEADERS = adminkafka.h
