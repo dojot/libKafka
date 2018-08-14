@@ -210,11 +210,9 @@ int KafkaSend(uint8_t *data, uint32_t dataSize, char *buffer, std::string kafka_
     }
 
     return -1;
-
 }
 
 int kafka::createTopic(std::string topic, int numPartition, int replicationFactor, std::string kafka_addr, int PORT) {
-
     char buffer[1024] = { 0 };
     CreateTopicMessage message;
     message.header.api_key = 19;
@@ -253,7 +251,6 @@ int kafka::createTopic(std::string topic, int numPartition, int replicationFacto
 };
 
 int APIRequest(std::string kafka_addr, int PORT) {
-
     RequestMessage message;
 
     char buffer[1024] = { 0 };
@@ -273,6 +270,5 @@ int APIRequest(std::string kafka_addr, int PORT) {
     }
 
     return -1;
-        
 }
 
