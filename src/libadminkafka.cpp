@@ -9,7 +9,7 @@
 #include <iostream>
 #include <vector>
 
-#include "adminkafka.h"
+#include "adminkafka.hpp"
 
 struct partition_t {
     int32_t partition;
