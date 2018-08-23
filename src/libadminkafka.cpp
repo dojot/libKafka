@@ -78,8 +78,8 @@ template <class T>
 void marshall(uint8_t *& output, uint32_t & offset, std::vector<T> data) {
     int32_t size = data.size();
     ::marshall(output, offset, size);
-    for (T value : data) {
-        ::marshall(output, offset, value);
+    for (uint32_t i = 0; i < data.size(); i++) {
+        ::marshall(output, offset, data[i]);
     }
 }
 
