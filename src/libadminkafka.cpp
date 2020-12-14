@@ -24,7 +24,7 @@ struct config_entries_t {
 
 struct KafkaMessage {
     int32_t size;
-    KafkaMessage() { 
+    KafkaMessage() {
         size = 0;
     }
 };
@@ -92,7 +92,7 @@ void marshall(uint8_t *& output, uint32_t & offset, std::string data) {
     const char * str = data.c_str();
 
     memcpy(output, str, data.length());
-    offset += data.length();    
+    offset += data.length();
     output += data.length();
 }
 
@@ -169,7 +169,7 @@ CreateTopicResponse getCreateTopicResponse(char *buffer) {
     response.string_length = ntohs(temp_16);
     cursor += sizeof(uint16_t);
 
-    
+
     strncpy(temp_string, (char *) cursor, response.string_length);
     temp_string[255] = 0;
     response.topic_name.assign(temp_string);
@@ -182,7 +182,7 @@ CreateTopicResponse getCreateTopicResponse(char *buffer) {
     return response;
 };
 
-int KafkaSend(uint8_t *data, uint32_t dataSize, char *buffer, std::string kafka_ip, int PORT) {    
+int KafkaSend(uint8_t *data, uint32_t dataSize, char *buffer, std::string kafka_ip, int PORT) {
     int sock = 0;
     struct sockaddr_in serv_addr;
 
@@ -190,12 +190,12 @@ int KafkaSend(uint8_t *data, uint32_t dataSize, char *buffer, std::string kafka_
     {
         return -1;
     }
-  
+
     memset(&serv_addr, '0', sizeof(serv_addr));
-  
+
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
-      
+
     inet_pton(AF_INET, kafka_ip.c_str(), &serv_addr.sin_addr);
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
@@ -203,7 +203,7 @@ int KafkaSend(uint8_t *data, uint32_t dataSize, char *buffer, std::string kafka_
     }
 
     int ret = send(sock, data, dataSize, 0);
-    
+
     if (ret > 0) {
         int r = read(sock , buffer, 1024);
         return r;
@@ -238,13 +238,13 @@ int kafka::createTopic(std::string topic, int numPartition, int replicationFacto
     offset = 0;
     ::marshall(cursor, offset, message.header);
 
-    
+
     if (KafkaSend(data, totalSize, buffer, kafka_addr, PORT) > 0) {
         CreateTopicResponse response;
-        
+
         response = getCreateTopicResponse(buffer);
 
-        return response.error_code;   
+        return response.error_code;
     }
 
     return -1;
@@ -264,7 +264,7 @@ int APIRequest(std::string kafka_addr, int PORT) {
     uint8_t * cursor = & data [0];
     ::marshall(cursor, offset, message);
 
-    
+
     if (KafkaSend(data, offset, buffer, kafka_addr, PORT) == 0) {
         return 0;
     }
